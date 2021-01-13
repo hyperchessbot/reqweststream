@@ -1,11 +1,14 @@
+use futures_util::StreamExt;
+
 #[tokio::main]
 async fn main() -> Result<(), Box<dyn std::error::Error>> {
-    let body = reqwest::get("https://www.rust-lang.org")
-      .await?
-      .text()
-      .await?;
+  let mut stream = reqwest::get("http://httpbin.org/ip")
+  .await?
+  .bytes_stream();
 
-    println!("body = {:?}", body);
+  while let Some(item) = stream.next().await {
+      println!("Chunk: {:?}", item?);
+  }
 
-    Ok(())
+  Ok(())
 }
